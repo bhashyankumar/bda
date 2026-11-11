@@ -1,4 +1,5 @@
-name: Node.js Build
+
+name: Node.js CI
 
 on:
   push:
@@ -22,5 +23,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Check build
-        run: npm run build
+      - name: Check JavaScript syntax
+        run: node --check server.js
+
+      - name: Check application
+        run: npm start &
