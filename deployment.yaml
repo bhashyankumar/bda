@@ -1,0 +1,21 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crud-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: crud-app
+  template:
+    metadata:
+      labels:
+        app: crud-app
+    spec:
+      containers:
+      - name: crud2
+        image: bda-app:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
