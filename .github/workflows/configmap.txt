@@ -1,0 +1,83 @@
+Step 1: Create configmap.yaml
+Inside your bda folder, create a file called configmap.yaml.
+
+Paste:
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  APP_NAME: "BDA Application"
+  PORT: "3000"
+
+
+This stores two configuration values.
+Step 2: Use ConfigMap in server.js
+Add these lines:
+let appName = process.env.APP_NAME;
+let port = process.env.PORT || 3000;
+
+app.get('/config', (req, res) => {
+    res.send({
+        name: appName,
+        port: port
+    });
+});
+
+
+Make sure your server listens on:
+app.listen(port, '0.0.0.0', () => {
+    console.log("Server running");
+});
+
+
+Step 3: Update deployment.yaml
+Inside the container section, add envFrom:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crud-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: crud-app
+  template:
+    metadata:
+      labels:
+        app: crud-app
+    spec:
+      containers:
+      - name: crud2
+        image: bda-app:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: my-config
+
+
+Step 4: Run these commands
+kubectl apply -f configmap.yaml
+
+
+docker build -t bda-app:latest .
+
+
+kubectl apply -f deployment.yaml
+
+
+kubectl get pods
+
+
+Step 5: Test
+Open this URL:
+
+http://localhost:30080/config
+
+Expected output:
+{
+  "name": "BDA Application",
+  "port": "3000"
+}
